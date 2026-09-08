@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Срез — сравнение цен такси в Москве</title>
+  <meta name="description" content="Сравните цены Яндекс Go, Uber, Ситимобил, Максим и Везёт. Выбирайте самый выгодный вариант для поездки по Москве.">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0A0E14;
+      --surface: #151922;
+      --surface-light: #1E2530;
+      --border: #2A3441;
+      --text: #E6EDF3;
+      --text-muted: #8B96A5;
+      --accent: #38BDF8;
+      --accent-hover: #0EA5E9;
+      --green: #22C55E;
+      --yellow: #F59E0B;
+      --red: #EF4444;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Header */
+    .header {
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 40px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.5px;
+    }
+
+    .logo span {
+      color: var(--text-muted);
+      font-size: 12px;
+      font-weight: 400;
+      margin-left: 10px;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 60px 0 40px;
+    }
+
+    h1 {
+      font-size: clamp(32px, 5vw, 56px);
+      font-weight: 800;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+    }
+
+    /* Main Card */
+    .main-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 30px;
+    }
+
+    .input-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--surface-light);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 16px;
+      color: var(--text);
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .btn {
+      width: 100%;
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Results */
+    .results {
+      display: none;
+      margin-top: 30px;
+    }
+
+    .results.show {
+      display: block;
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .results-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .results-count {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .ride-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 12px;
+      display: grid;
+      grid-template-columns: 50px 1fr auto;
+      gap: 16px;
+      align-items: center;
+      transition: all 0.2s;
+    }
+
+    .ride-card:hover {
+      border-color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .ride-card.best {
+      border-color: var(--green);
+      border-width: 2px;
+    }
+
+    .service-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .logo-yandex { background: #FFDB4D; color: #000; }
+    .logo-uber { background: #000; color: #FFF; }
+    .logo-city { background: #D0E8FF; color: #1E88E5; }
+    .logo-maxim { background: #FFE0E6; color: #C62828; }
+    .logo-vezet { background: #E8F5E9; color: #388E3C; }
+
+    .ride-info {
+      flex: 1;
+    }
+
+    .ride-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .best-badge {
+      display: inline-block;
+      background: var(--green);
+      color: var(--bg);
+      font-size: 10px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      margin-left: 8px;
+    }
+
+    .ride-meta {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .ride-price {
+      text-align: right;
+    }
+
+    .price {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+    }
+
+    .price-diff {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .price-diff.positive {
+      color: var(--green);
+    }
+
+    .order-btn {
+      background: var(--accent);
+      color: var(--bg);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+
+    .order-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    /* Loading */
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 40px;
+      color: var(--text-muted);
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+      border-top: 1px solid var(--border);
+      margin-top: 60px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .row {
+        grid-template-columns: 1fr;
+      }
+
+      .ride-card {
+        grid-template-columns: 40px 1fr auto;
+        gap: 12px;
+      }
+
+      .service-logo {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
+
+      .price {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="logo">
+        срез
+        <span>сравнение цен такси</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Сравните цены такси<br>за секунду</h1>
+      <p class="subtitle">Яндекс Go, Uber, Ситимобил, Максим и Везёт — все в одном месте</p>
+    </section>
+
+    <div class="main-card">
+      <div class="input-group">
+        <label for="from">Откуда</label>
+        <input type="text" id="from" placeholder="Например: Красная площадь" value="Тверская улица, 12">
+      </div>
+
+      <div class="input-group">
+        <label for="to">Куда</label>
+        <input type="text" id="to" placeholder="Например: Шереметьево" value="Шереметьево, терминал B">
+      </div>
+
+      <div class="row">
+        <div class="input-group">
+          <label for="when">Когда</label>
+          <select id="when">
+            <option>Сейчас</option>
+            <option>Через 15 минут</option>
+            <option>Через 30 минут</option>
+            <option>Завтра утром</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label for="class">Класс</label>
+          <select id="class">
+            <option>Эконом</option>
+            <option>Комфорт</option>
+            <option>Бизнес</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn" id="compareBtn" onclick="comparePrices()">
+        Сравнить цены →
+      </button>
+    </div>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <p>Ищем лучшие варианты...</p>
+    </div>
+
+    <div class="results" id="results">
+      <div class="results-header">
+        <div class="results-title">Найдено 5 вариантов</div>
+        <div class="results-count" id="priceRange">От 1089₽ до 1345₽</div>
+      </div>
+      <div id="ridesList"></div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <p>© 2026 Срез. Демонстрационная версия — цены рассчитаны по базовым тарифам.</p>
+    <p style="margin-top: 8px; font-size: 12px;">
+      Для реального заказа нажмите на кнопку выбранного сервиса
+    </p>
+  </footer>
+
+  <script>
+    // Расчёт расстояния по формуле Haversine
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
+    }
+
+    function toRad(deg) {
+      return deg * (Math.PI / 180);
+    }
+
+    // Базовый расчёт цены
+    function calculateBasePrice(distanceKm, classType) {
+      const tariffs = {
+        'Эконом': { base: 149, perKm: 12, perMin: 7 },
+        'Комфорт': { base: 199, perKm: 18, perMin: 10 },
+        'Бизнес': { base: 399, perKm: 28, perMin: 15 }
+      };
+
+      const tariff = tariffs[classType] || tariffs['Эконом'];
+      const estimatedMinutes = distanceKm * 3;
+
+      return Math.round(
+        tariff.base +
+        (distanceKm * tariff.perKm) +
+        (estimatedMinutes * tariff.perMin)
+      );
+    }
+
+    // Коэффициент времени
+    function getTimeMultiplier() {
+      const hour = new Date().getHours();
+      if (hour >= 7 && hour <= 10) return 1.3; // утро
+      if (hour >= 17 && hour <= 20) return 1.4; // вечер
+      if (hour >= 23 || hour <= 6) return 1.5; // ночь
+      return 1.0;
+    }
+
+    // Получение цен для всех сервисов
+    function getPrices(distanceKm, classType) {
+      const basePrice = calculateBasePrice(distanceKm, classType);
+      const timeMult = getTimeMultiplier();
+
+      const services = [
+        {
+          id: 'yandex',
+          name: 'Яндекс Go',
+          logo: 'Я',
+          logoClass: 'logo-yandex',
+          mult: 0.92,
+          variation: 8
+        },
+        {
+          id: 'uber',
+          name: 'Uber',
+          logo: 'U',
+          logoClass: 'logo-uber',
+          mult: 1.12,
+          variation: 10
+        },
+        {
+          id: 'citymobil',
+          name: 'Ситимобил',
+          logo: 'С',
+          logoClass: 'logo-city',
+          mult: 1.02,
+          variation: 7
+        },
+        {
+          id: 'maxim',
+          name: 'Максим',
+          logo: 'М',
+          logoClass: 'logo-maxim',
+          mult: 0.90,
+          variation: 9
+        },
+        {
+          id: 'vezet',
+          name: 'Везёт',
+          logo: 'В',
+          logoClass: 'logo-vezet',
+          mult: 0.95,
+          variation: 8
+        }
+      ];
+
+      const results = services.map(service => {
+        let price = Math.round(basePrice * timeMult * service.mult);
+        const variation = (Math.random() - 0.5) * 2 * (service.variation / 100);
+        price = Math.round(price * (1 + variation));
+
+        const eta = Math.round(distanceKm * 3) + Math.floor(Math.random() * 5);
+        const pickup = Math.floor(2 + Math.random() * 4);
+
+        return {
+          ...service,
+          price,
+          eta,
+          pickup
+        };
+      });
+
+      results.sort((a, b) => a.price - b.price);
+
+      const minPrice = results[0].price;
+      const maxPrice = results[results.length - 1].price;
+      const avgPrice = Math.round(results.reduce((sum, r) => sum + r.price, 0) / results.length);
+
+      results.forEach(r => {
+        r.diff = r.price - avgPrice;
+        r.isBest = r.price === minPrice;
+      });
+
+      return { results, minPrice, maxPrice, avgPrice };
+    }
+
+    // Главная функция сравнения
+    async function comparePrices() {
+      const btn = document.getElementById('compareBtn');
+      const loading = document.getElementById('loading');
+      const results = document.getElementById('results');
+      const ridesList = document.getElementById('ridesList');
+
+      btn.disabled = true;
+      btn.textContent = 'Сравниваем...';
+      loading.classList.add('show');
+      results.classList.remove('show');
+
+      // Имитация задержки загрузки
+      await new Promise(resolve => setTimeout(resolve, 1200));
+
+      // Примерные координаты (Тверская → Шереметьево)
+      const distance = 28.5; // км
+      const classType = document.getElementById('class').value;
+
+      const data = getPrices(distance, classType);
+
+      // Рендеринг результатов
+      ridesList.innerHTML = data.results.map(ride => `
+        <div class="ride-card ${ride.isBest ? 'best' : ''}">
+          <div class="service-logo ${ride.logoClass}">${ride.logo}</div>
+          <div class="ride-info">
+            <div class="ride-name">
+              ${ride.name}
+              ${ride.isBest ? '<span class="best-badge">Выгоднее</span>' : ''}
+            </div>
+            <div class="ride-meta">
+              ${ride.eta} мин • подача ${ride.pickup} мин
+            </div>
+          </div>
+          <div class="ride-price">
+            <div class="price">${ride.price}₽</div>
+            <div class="price-diff ${ride.diff < 0 ? 'positive' : ''}">
+              ${ride.diff < 0 ? '−' : '+'} ${Math.abs(ride.diff)}₽
+            </div>
+            <button class="order-btn" onclick="orderRide('${ride.id}')">
+              Заказать →
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      document.getElementById('priceRange').textContent =
+        `От ${data.minPrice}₽ до ${data.maxPrice}₽`;
+
+      loading.classList.remove('show');
+      results.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Сравнить цены →';
+    }
+
+    function orderRide(serviceId) {
+      const links = {
+        yandex: 'https://3.redirect.appmetrica.yandex.com/route',
+        uber: 'https://m.uber.com/',
+        citymobil: 'https://city-mobil.ru/',
+        maxim: 'https://taximaxim.ru/',
+        vezet: 'https://vezyot.com/'
+      };
+
+      window.open(links[serviceId], '_blank');
+    }
+
+    // Автозапуск при загрузке
+    window.addEventListener('load', () => {
+      setTimeout(comparePrices, 500);
+    });
+  </script>
+</body>
+</html>
